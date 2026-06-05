@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; min-height: 100vh; }
+
+  /* NAV */
+  .nav { background: #1a1f2e; color: white; padding: 0 2rem; display: flex; align-items: center; gap: 2rem; height: 56px; }
+  .nav-brand { font-weight: 700; font-size: 16px; color: #60a5fa; letter-spacing: 0.5px; }
+  .nav-tabs { display: flex; gap: 0; margin-left: auto; }
+  .nav-tab { padding: 0 20px; height: 56px; display: flex; align-items: center; font-size: 13px; cursor: pointer; color: #94a3b8; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .nav-tab:hover { color: white; }
+  .nav-tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+
+  /* PAGES */
+  .page { display: none; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* FORM */
+  .form-card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .form-card h2 { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+  .form-card h2 .badge { background: #eff6ff; color: #2563eb; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .field { margin-bottom: 1rem; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: #475569; margin-bottom: 6px; }
+  .field input, .field select, .field textarea { width: 100%; padding: 9px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1e293b; background: #f8fafc; transition: border 0.2s; font-family: inherit; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #60a5fa; background: white; }
+  .field textarea { resize: vertical; min-height: 80px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .field-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+  /* SKILLS TAGS */
+  .tags-input { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; min-height: 44px; cursor: text; }
+  .tags-input:focus-within { border-color: #60a5fa; background: white; }
+  .tag { background: #eff6ff; color: #1d4ed8; padding: 3px 10px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 4px; }
+  .tag span { cursor: pointer; opacity: 0.6; }
+  .tag span:hover { opacity: 1; }
+  .tag-input-field { border: none; outline: none; background: transparent; font-size: 14px; flex: 1; min-width: 120px; }
+
+  /* REPEATABLE SECTIONS */
+  .repeat-item { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; position: relative; background: #fafbfc; }
+  .repeat-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .repeat-item-title { font-size: 13px; font-weight: 600; color: #64748b; }
+  .btn-remove { background: #fee2e2; color: #dc2626; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .btn-add { background: #f0fdf4; color: #16a34a; border: 1px dashed #86efac; padding: 8px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; width: 100%; margin-top: 0.5rem; font-weight: 500; }
+  .btn-add:hover { background: #dcfce7; }
+
+  /* SF CERTS */
+  .cert-pill { display: inline-flex; align-items: center; gap: 6px; background: #fef3c7; color: #92400e; padding: 5px 12px; border-radius: 20px; font-size: 12px; margin: 4px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+  .cert-pill.selected { background: #fbbf24; border-color: #d97706; color: #78350f; }
+  .cert-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  /* BUTTONS */
+  .btn-primary { background: #2563eb; color: white; border: none; padding: 11px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-success { background: #16a34a; color: white; border: none; padding: 11px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  /* SUBMISSIONS PAGE */
+  .sub-card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid #60a5fa; }
+  .sub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+  .sub-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+  .sub-meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+  .sub-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: 500; }
+  .btn-blue { background: #eff6ff; color: #1d4ed8; }
+  .btn-green { background: #f0fdf4; color: #16a34a; }
+  .btn-purple { background: #faf5ff; color: #7c3aed; }
+  .btn-orange { background: #fff7ed; color: #c2410c; }
+  .sub-section { margin-top: 0.75rem; }
+  .sub-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 4px; }
+  .sub-section-content { font-size: 13px; color: #334155; }
+  .chip { display: inline-block; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin: 2px; }
+  .chip.blue { background: #eff6ff; color: #1d4ed8; }
+  .chip.amber { background: #fef3c7; color: #92400e; }
+
+  /* EXPORT PAGE */
+  .export-card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+  .export-info h3 { font-size: 15px; font-weight: 600; color: #1e293b; }
+  .export-info p { font-size: 13px; color: #64748b; margin-top: 4px; }
+  .export-btn { padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 13px; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 3rem; color: #94a3b8; }
+  .empty .icon { font-size: 48px; margin-bottom: 1rem; }
+
+  /* AI SUMMARY */
+  .ai-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; font-size: 13px; color: #166534; white-space: pre-wrap; line-height: 1.6; }
+  .ai-loading { color: #16a34a; font-size: 13px; display: flex; align-items: center; gap: 8px; padding: 1rem; }
+  .dot-anim { animation: dotpulse 1s infinite; }
+  @keyframes dotpulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+  /* SHARE LINK */
+  .share-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+  .share-link { font-family: monospace; font-size: 12px; color: #475569; word-break: break-all; }
+  .share-notice { font-size: 12px; color: #64748b; margin-top: 6px; }
+
+  .page-title { font-size: 22px; font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; }
+  .page-subtitle { font-size: 14px; color: #64748b; margin-bottom: 1.5rem; }
+
+  .progress-bar { background: #e2e8f0; border-radius: 4px; height: 6px; margin-bottom: 2rem; }
+  .progress-fill { background: linear-gradient(90deg, #2563eb, #60a5fa); height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+  .success-banner { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; display: none; }
+  .success-banner.show { display: block; }
+  .success-banner strong { color: #15803d; }
+
+  @media(max-width: 600px) {
+    .field-row, .field-row3 { grid-template-columns: 1fr; }
+    .nav-tab { padding: 0 12px; font-size: 12px; }
+    .export-card { flex-direction: column; gap: 1rem; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-brand">🏢 TalentTrack</div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showPage('form')">📝 Submit Profile</div>
+    <div class="nav-tab" onclick="showPage('submissions')">👥 All Submissions</div>
+    <div class="nav-tab" onclick="showPage('exports')">📤 Exports</div>
+  </div>
+</div>
+
+<!-- FORM PAGE -->
+<div class="page active" id="page-form">
+  <div style="margin-top: 1.5rem;">
+    <div class="page-title">Employee Experience Profile</div>
+    <div class="page-subtitle">Fill in your professional details. All fields help build your complete profile.</div>
+
+    <div class="share-box">
+      <div style="font-size:12px;font-weight:600;color:#475569;margin-bottom:6px;">🔗 Shareable Link (copy & send to employees)</div>
+      <div class="share-link" id="shareLink"></div>
+      <div class="share-notice">⚠️ Note: Submissions are stored locally in this browser. For persistent storage, export and upload the combined .md file to GitHub, or use the HTML export with a hosting service.</div>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="success-banner" id="successBanner">
+      <strong>✅ Profile submitted successfully!</strong> Head to the "All Submissions" tab to view and export.
+    </div>
+
+    <!-- SECTION 1: Personal Info -->
+    <div class="form-card">
+      <h2>👤 Personal Information <span class="badge">Required</span></h2>
+      <div class="field-row">
+        <div class="field"><label>Full Name *</label><input type="text" id="fullName" placeholder="Jane Smith" oninput="updateProgress()"></div>
+        <div class="field"><label>Email Address *</label><input type="email" id="email" placeholder="jane@company.com" oninput="updateProgress()"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Job Title / Role *</label><input type="text" id="jobTitle" placeholder="Senior Salesforce Developer" oninput="updateProgress()"></div>
+        <div class="field"><label>Department</label><input type="text" id="department" placeholder="Engineering / Sales Ops / IT"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Total Years of Experience</label><input type="number" id="totalYears" placeholder="e.g. 8" min="0" max="50"></div>
+        <div class="field"><label>Years at This Company</label><input type="number" id="yearsAtCompany" placeholder="e.g. 3" min="0" max="50"></div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Work History -->
+    <div class="form-card">
+      <h2>🏢 Work History / Past Employers</h2>
+      <div id="workHistoryList"></div>
+      <button class="btn-add" onclick="addWorkHistory()">+ Add Previous Employer</button>
+    </div>
+
+    <!-- SECTION 3: Salesforce Certifications -->
+    <div class="form-card">
+      <h2>☁️ Salesforce Certifications</h2>
+      <div class="cert-grid" id="certGrid"></div>
+      <div class="field" style="margin-top:1rem;">
+        <label>Other Certifications (not listed above)</label>
+        <input type="text" id="otherCerts" placeholder="e.g. AWS Solutions Architect, PMP, Scrum Master...">
+      </div>
+    </div>
+
+    <!-- SECTION 4: Skills & Technologies -->
+    <div class="form-card">
+      <h2>🛠️ Skills & Technologies</h2>
+      <div class="field">
+        <label>Salesforce Skills (type and press Enter)</label>
+        <div class="tags-input" id="sfSkillsContainer" onclick="document.getElementById('sfSkillsInput').focus()">
+          <input class="tag-input-field" id="sfSkillsInput" placeholder="e.g. Apex, LWC, Flow..." onkeydown="addTag(event, 'sfSkillsContainer', 'sfSkillsInput')">
+        </div>
+      </div>
+      <div class="field">
+        <label>Technical Skills (type and press Enter)</label>
+        <div class="tags-input" id="techSkillsContainer" onclick="document.getElementById('techSkillsInput').focus()">
+          <input class="tag-input-field" id="techSkillsInput" placeholder="e.g. JavaScript, Python, SQL..." onkeydown="addTag(event, 'techSkillsContainer', 'techSkillsInput')">
+        </div>
+      </div>
+      <div class="field">
+        <label>Industry Expertise</label>
+        <div class="tags-input" id="industryContainer" onclick="document.getElementById('industryInput').focus()">
+          <input class="tag-input-field" id="industryInput" placeholder="e.g. Healthcare, Fintech, Retail..." onkeydown="addTag(event, 'industryContainer', 'industryInput')">
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Projects -->
+    <div class="form-card">
+      <h2>📁 Notable Projects</h2>
+      <div id="projectsList"></div>
+      <button class="btn-add" onclick="addProject()">+ Add Project</button>
+    </div>
+
+    <!-- SECTION 6: Additional -->
+    <div class="form-card">
+      <h2>💬 Additional Information</h2>
+      <div class="field">
+        <label>Professional Summary / Bio</label>
+        <textarea id="bio" placeholder="Brief overview of your expertise, strengths, and career focus..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>LinkedIn Profile URL</label><input type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+        <div class="field"><label>Availability for Internal Projects</label>
+          <select id="availability">
+            <option value="">Select...</option>
+            <option>Fully Available</option>
+            <option>Available Part-Time</option>
+            <option>Limited Availability</option>
+            <option>Not Available Currently</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:right;">
+      <button class="btn-primary" onclick="submitForm()">Submit My Profile →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMISSIONS PAGE -->
+<div class="page" id="page-submissions">
+  <div style="margin-top: 1.5rem;">
+    <div class="page-title">All Employee Submissions</div>
+    <div class="page-subtitle" id="submissionCount">No submissions yet.</div>
+    <div id="submissionsList"></div>
+  </div>
+</div>
+
+<!-- EXPORTS PAGE -->
+<div class="page" id="page-exports">
+  <div style="margin-top: 1.5rem;">
+    <div class="page-title">Export Options</div>
+    <div class="page-subtitle">Download employee data in multiple formats.</div>
+
+    <div class="export-card">
+      <div class="export-info">
+        <h3>📄 Downloadable HTML File</h3>
+        <p>Full interactive viewer — all submissions in a styled, standalone HTML file you can open in any browser.</p>
+      </div>
+      <button class="export-btn" style="background:#eff6ff;color:#1d4ed8;" onclick="exportHTML()">Export HTML</button>
+    </div>
+
+    <div class="export-card">
+      <div class="export-info">
+        <h3>🔍 Preview All Details</h3>
+        <p>View a formatted preview of every employee's full profile in this window.</p>
+      </div>
+      <button class="export-btn" style="background:#f0fdf4;color:#16a34a;" onclick="showPreview()">Preview All</button>
+    </div>
+
+    <div class="export-card">
+      <div class="export-info">
+        <h3>📝 Individual .md Files</h3>
+        <p>Download one Markdown file per employee — ready to commit to GitHub or paste into Notion.</p>
+      </div>
+      <button class="export-btn" style="background:#faf5ff;color:#7c3aed;" onclick="exportIndividualMD()">Export .md Files</button>
+    </div>
+
+    <div class="export-card">
+      <div class="export-info">
+        <h3>📚 Combined .md File</h3>
+        <p>All employee profiles merged into a single Markdown file — ideal for a GitHub wiki or README.</p>
+      </div>
+      <button class="export-btn" style="background:#fff7ed;color:#c2410c;" onclick="exportCombinedMD()">Export Combined .md</button>
+    </div>
+
+    <div class="export-card">
+      <div class="export-info">
+        <h3>🤖 AI Experience Summary</h3>
+        <p>Generate a high-level summary of each employee's experience using Claude AI — great for management review.</p>
+      </div>
+      <button class="export-btn" style="background:#f0f9ff;color:#0369a1;" onclick="generateAISummary()">Generate AI Summary</button>
+    </div>
+
+    <div id="previewArea" style="display:none;margin-top:1.5rem;"></div>
+    <div id="aiSummaryArea" style="display:none;margin-top:1.5rem;"></div>
+  </div>
+</div>
+
+<script>
+const SF_CERTS = [
+  'Administrator','Advanced Administrator','Platform App Builder',
+  'Sales Cloud Consultant','Service Cloud Consultant','Experience Cloud Consultant',
+  'Marketing Cloud Email Specialist','Marketing Cloud Consultant',
+  'Platform Developer I','Platform Developer II','JavaScript Developer I',
+  'Data Cloud Consultant','B2B Commerce Developer','CPQ Specialist',
+  'Field Service Consultant','Nonprofit Cloud Consultant','Education Cloud Consultant',
+  'OmniStudio Developer','OmniStudio Consultant','AI Specialist','AI Associate',
+  'Data Architect','Sharing and Visibility Architect','Integration Architect',
+  'Development Lifecycle & Deployment Architect','System Architect','Application Architect','Technical Architect'
+];
+
+let selectedCerts = [];
+let submissions = JSON.parse(localStorage.getItem('talenttrack_submissions') || '[]');
+
+function init() {
+  document.getElementById('shareLink').textContent = window.location.href;
+
+  const certGrid = document.getElementById('certGrid');
+  SF_CERTS.forEach(cert => {
+    const pill = document.createElement('div');
+    pill.className = 'cert-pill';
+    pill.textContent = cert;
+    pill.onclick = () => {
+      if (selectedCerts.includes(cert)) {
+        selectedCerts = selectedCerts.filter(c => c !== cert);
+        pill.classList.remove('selected');
+      } else {
+        selectedCerts.push(cert);
+        pill.classList.add('selected');
+      }
+    };
+    certGrid.appendChild(pill);
+  });
+
+  addWorkHistory();
+  addProject();
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = ['form','submissions','exports'].indexOf(id);
+  if (idx >= 0) tabs[idx].classList.add('active');
+  if (id === 'submissions') renderSubmissions();
+  if (id === 'exports') {
+    document.getElementById('previewArea').style.display = 'none';
+    document.getElementById('aiSummaryArea').style.display = 'none';
+  }
+}
+
+function updateProgress() {
+  const fields = ['fullName','email','jobTitle'];
+  let filled = fields.filter(f => document.getElementById(f).value.trim()).length;
+  document.getElementById('progressFill').style.width = Math.round((filled/fields.length)*100) + '%';
+}
+
+let wIdx = 0;
+function addWorkHistory() {
+  wIdx++;
+  const div = document.createElement('div');
+  div.className = 'repeat-item';
+  div.id = 'wh_' + wIdx;
+  div.innerHTML = `
+    <div class="repeat-item-header">
+      <span class="repeat-item-title">Employer ${wIdx}</span>
+      <button class="btn-remove" onclick="this.closest('.repeat-item').remove()">Remove</button>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Company Name</label><input type="text" placeholder="e.g. Accenture"></div>
+      <div class="field"><label>Role / Title</label><input type="text" placeholder="e.g. Salesforce Consultant"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Start Year</label><input type="number" placeholder="2018" min="1990" max="2025"></div>
+      <div class="field"><label>End Year (or "Present")</label><input type="text" placeholder="2022 or Present"></div>
+    </div>
+    <div class="field"><label>Key Responsibilities / Achievements</label><textarea placeholder="Describe your role, key projects, and impact..."></textarea></div>
+  `;
+  document.getElementById('workHistoryList').appendChild(div);
+}
+
+let pIdx = 0;
+function addProject() {
+  pIdx++;
+  const div = document.createElement('div');
+  div.className = 'repeat-item';
+  div.innerHTML = `
+    <div class="repeat-item-header">
+      <span class="repeat-item-title">Project ${pIdx}</span>
+      <button class="btn-remove" onclick="this.closest('.repeat-item').remove()">Remove</button>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Project Name</label><input type="text" placeholder="e.g. CRM Modernization"></div>
+      <div class="field"><label>Client / Company</label><input type="text" placeholder="e.g. Retail client (confidential)"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Technologies Used</label><input type="text" placeholder="e.g. Salesforce, Apex, Mulesoft"></div>
+      <div class="field"><label>Project Year</label><input type="number" placeholder="2023"></div>
+    </div>
+    <div class="field"><label>Project Description & Your Role</label><textarea placeholder="Describe the project scope, your contributions, and outcomes..."></textarea></div>
+  `;
+  document.getElementById('projectsList').appendChild(div);
+}
+
+function addTag(event, containerId, inputId) {
+  if (event.key === 'Enter' || event.key === ',') {
+    event.preventDefault();
+    const input = document.getElementById(inputId);
+    const val = input.value.trim().replace(/,$/, '');
+    if (!val) return;
+    const container = document.getElementById(containerId);
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = val + ' <span onclick="this.parentElement.remove()">×</span>';
+    container.insertBefore(tag, input);
+    input.value = '';
+  }
+}
+
+function getTags(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' .tag'))
+    .map(t => t.textContent.replace('×', '').trim());
+}
+
+function getWorkHistory() {
+  return Array.from(document.querySelectorAll('#workHistoryList .repeat-item')).map(el => {
+    const inputs = el.querySelectorAll('input, textarea');
+    return { company: inputs[0].value, role: inputs[1].value, startYear: inputs[2].value, endYear: inputs[3].value, description: inputs[4].value };
+  }).filter(w => w.company || w.role);
+}
+
+function getProjects() {
+  return Array.from(document.querySelectorAll('#projectsList .repeat-item')).map(el => {
+    const inputs = el.querySelectorAll('input, textarea');
+    return { name: inputs[0].value, client: inputs[1].value, tech: inputs[2].value, year: inputs[3].value, description: inputs[4].value };
+  }).filter(p => p.name || p.description);
+}
+
+function submitForm() {
+  const name = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const jobTitle = document.getElementById('jobTitle').value.trim();
+
+  if (!name || !email || !jobTitle) {
+    alert('Please fill in Name, Email, and Job Title at minimum.');
+    return;
+  }
+
+  const submission = {
+    id: Date.now(),
+    submittedAt: new Date().toLocaleString(),
+    name, email, jobTitle,
+    department: document.getElementById('department').value,
+    totalYears: document.getElementById('totalYears').value,
+    yearsAtCompany: document.getElementById('yearsAtCompany').value,
+    sfCerts: [...selectedCerts],
+    otherCerts: document.getElementById('otherCerts').value,
+    sfSkills: getTags('sfSkillsContainer'),
+    techSkills: getTags('techSkillsContainer'),
+    industries: getTags('industryContainer'),
+    workHistory: getWorkHistory(),
+    projects: getProjects(),
+    bio: document.getElementById('bio').value,
+    linkedin: document.getElementById('linkedin').value,
+    availability: document.getElementById('availability').value
+  };
+
+  submissions.push(submission);
+  localStorage.setItem('talenttrack_submissions', JSON.stringify(submissions));
+
+  document.getElementById('successBanner').classList.add('show');
+  document.getElementById('successBanner').scrollIntoView({ behavior: 'smooth' });
+
+  setTimeout(() => {
+    document.getElementById('successBanner').classList.remove('show');
+    showPage('submissions');
+  }, 2500);
+}
+
+function renderSubmissions() {
+  const list = document.getElementById('submissionsList');
+  const count = document.getElementById('submissionCount');
+  list.innerHTML = '';
+
+  if (!submissions.length) {
+    count.textContent = 'No submissions yet.';
+    list.innerHTML = '<div class="empty"><div class="icon">📋</div><p>No profiles submitted yet. Share the form link with your employees!</p></div>';
+    return;
+  }
+
+  count.textContent = `${submissions.length} employee profile${submissions.length > 1 ? 's' : ''} collected`;
+
+  submissions.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'sub-card';
+    card.innerHTML = `
+      <div class="sub-header">
+        <div>
+          <div class="sub-name">${s.name}</div>
+          <div class="sub-meta">${s.jobTitle}${s.department ? ' · ' + s.department : ''} · Submitted ${s.submittedAt}</div>
+        </div>
+        <div class="sub-actions">
+          <button class="btn-sm btn-blue" onclick="exportSingleHTML(${i})">HTML</button>
+          <button class="btn-sm btn-green" onclick="exportSingleMD(${i})">↓ .md</button>
+          <button class="btn-sm btn-purple" onclick="toggleDetail('det_${i}')">View Details</button>
+          <button class="btn-sm btn-orange" onclick="deleteSubmission(${i})">Delete</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:0.5rem;">
+        ${s.totalYears ? `<span class="chip blue">📅 ${s.totalYears} yrs exp</span>` : ''}
+        ${s.sfCerts.length ? `<span class="chip amber">☁️ ${s.sfCerts.length} SF cert${s.sfCerts.length > 1 ? 's' : ''}</span>` : ''}
+        ${s.sfSkills.length ? `<span class="chip">🛠️ ${s.sfSkills.length} SF skills</span>` : ''}
+        ${s.techSkills.length ? `<span class="chip">💻 ${s.techSkills.length} tech skills</span>` : ''}
+        ${s.projects.length ? `<span class="chip">📁 ${s.projects.length} project${s.projects.length > 1 ? 's' : ''}</span>` : ''}
+      </div>
+      <div id="det_${i}" style="display:none;border-top:1px solid #e2e8f0;padding-top:1rem;margin-top:0.5rem;">
+        ${s.sfCerts.length ? `<div class="sub-section"><div class="sub-section-title">Salesforce Certifications</div><div>${s.sfCerts.map(c => `<span class="chip amber">${c}</span>`).join('')}</div></div>` : ''}
+        ${s.sfSkills.length ? `<div class="sub-section"><div class="sub-section-title">Salesforce Skills</div><div>${s.sfSkills.map(k => `<span class="chip blue">${k}</span>`).join('')}</div></div>` : ''}
+        ${s.techSkills.length ? `<div class="sub-section"><div class="sub-section-title">Technical Skills</div><div>${s.techSkills.map(k => `<span class="chip">${k}</span>`).join('')}</div></div>` : ''}
+        ${s.workHistory.length ? `<div class="sub-section"><div class="sub-section-title">Work History</div>${s.workHistory.map(w => `<div style="margin-bottom:6px;font-size:13px;"><strong>${w.company}</strong> — ${w.role} (${w.startYear}–${w.endYear})</div>`).join('')}</div>` : ''}
+        ${s.projects.length ? `<div class="sub-section"><div class="sub-section-title">Projects</div>${s.projects.map(p => `<div style="margin-bottom:6px;font-size:13px;"><strong>${p.name}</strong>${p.client ? ' @ ' + p.client : ''} ${p.year ? '('+p.year+')' : ''}</div>`).join('')}</div>` : ''}
+        ${s.bio ? `<div class="sub-section"><div class="sub-section-title">Bio</div><div class="sub-section-content">${s.bio}</div></div>` : ''}
+        ${s.linkedin ? `<div class="sub-section"><div class="sub-section-title">LinkedIn</div><div><a href="${s.linkedin}" style="color:#2563eb;font-size:13px;" target="_blank">${s.linkedin}</a></div></div>` : ''}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function deleteSubmission(i) {
+  if (!confirm('Delete this submission?')) return;
+  submissions.splice(i, 1);
+  localStorage.setItem('talenttrack_submissions', JSON.stringify(submissions));
+  renderSubmissions();
+}
+
+function toMD(s) {
+  let md = `# ${s.name}\n\n`;
+  md += `**Role:** ${s.jobTitle}${s.department ? ' | **Department:** ' + s.department : ''}\n`;
+  md += `**Email:** ${s.email}\n`;
+  if (s.totalYears) md += `**Total Experience:** ${s.totalYears} years\n`;
+  if (s.yearsAtCompany) md += `**At Company:** ${s.yearsAtCompany} years\n`;
+  if (s.availability) md += `**Availability:** ${s.availability}\n`;
+  if (s.linkedin) md += `**LinkedIn:** ${s.linkedin}\n`;
+  md += `**Submitted:** ${s.submittedAt}\n\n`;
+
+  if (s.bio) md += `## Summary\n\n${s.bio}\n\n`;
+
+  if (s.sfCerts.length) {
+    md += `## Salesforce Certifications\n\n`;
+    s.sfCerts.forEach(c => md += `- ${c}\n`);
+    if (s.otherCerts) md += `- ${s.otherCerts} (other)\n`;
+    md += '\n';
+  }
+
+  if (s.sfSkills.length || s.techSkills.length || s.industries.length) {
+    md += `## Skills & Technologies\n\n`;
+    if (s.sfSkills.length) md += `**Salesforce:** ${s.sfSkills.join(', ')}\n\n`;
+    if (s.techSkills.length) md += `**Technical:** ${s.techSkills.join(', ')}\n\n`;
+    if (s.industries.length) md += `**Industries:** ${s.industries.join(', ')}\n\n`;
+  }
+
+  if (s.workHistory.length) {
+    md += `## Work History\n\n`;
+    s.workHistory.forEach(w => {
+      md += `### ${w.company} — ${w.role}\n*${w.startYear} – ${w.endYear}*\n\n`;
+      if (w.description) md += `${w.description}\n\n`;
+    });
+  }
+
+  if (s.projects.length) {
+    md += `## Notable Projects\n\n`;
+    s.projects.forEach(p => {
+      md += `### ${p.name}${p.client ? ' @ ' + p.client : ''}${p.year ? ' (' + p.year + ')' : ''}\n`;
+      if (p.tech) md += `**Technologies:** ${p.tech}\n\n`;
+      if (p.description) md += `${p.description}\n\n`;
+    });
+  }
+
+  return md;
+}
+
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function exportSingleMD(i) {
+  const s = submissions[i];
+  downloadFile(toMD(s), s.name.replace(/\s+/g, '_') + '_profile.md', 'text/markdown');
+}
+
+function exportIndividualMD() {
+  if (!submissions.length) { alert('No submissions to export.'); return; }
+  submissions.forEach((s, i) => setTimeout(() => exportSingleMD(i), i * 300));
+}
+
+function exportCombinedMD() {
+  if (!submissions.length) { alert('No submissions to export.'); return; }
+  let combined = `# Employee Experience Profiles\n\n*Generated: ${new Date().toLocaleString()} | Total Employees: ${submissions.length}*\n\n---\n\n`;
+  submissions.forEach((s, i) => {
+    combined += toMD(s);
+    if (i < submissions.length - 1) combined += '\n\n---\n\n';
+  });
+  downloadFile(combined, 'all_employee_profiles.md', 'text/markdown');
+}
+
+function exportSingleHTML(i) {
+  const s = submissions[i];
+  const html = buildHTMLExport([s]);
+  downloadFile(html, s.name.replace(/\s+/g, '_') + '_profile.html', 'text/html');
+}
+
+function exportHTML() {
+  if (!submissions.length) { alert('No submissions to export.'); return; }
+  const html = buildHTMLExport(submissions);
+  downloadFile(html, 'employee_profiles.html', 'text/html');
+}
+
+function buildHTMLExport(subs) {
+  let cards = subs.map(s => `
+    <div style="background:white;border-radius:12px;padding:2rem;margin-bottom:1.5rem;border:1px solid #e2e8f0;page-break-inside:avoid;">
+      <h2 style="font-size:22px;color:#1e293b;margin-bottom:4px;">${s.name}</h2>
+      <p style="color:#64748b;font-size:14px;margin-bottom:1rem;">${s.jobTitle}${s.department?' · '+s.department:''} · ${s.email}</p>
+      ${s.totalYears?`<p><strong>Experience:</strong> ${s.totalYears} years total${s.yearsAtCompany?' ('+s.yearsAtCompany+' at this company)':''}</p>`:''}
+      ${s.bio?`<p style="margin-top:1rem;color:#334155;">${s.bio}</p>`:''}
+      ${s.sfCerts.length?`<h3 style="margin-top:1.5rem;font-size:14px;color:#92400e;">☁️ Salesforce Certifications</h3><p>${s.sfCerts.map(c=>`<span style="background:#fef3c7;color:#92400e;padding:3px 10px;border-radius:20px;font-size:12px;margin:2px;display:inline-block;">${c}</span>`).join('')}</p>`:''}
+      ${s.sfSkills.length?`<h3 style="margin-top:1rem;font-size:14px;color:#1e40af;">🛠️ Salesforce Skills</h3><p>${s.sfSkills.map(k=>`<span style="background:#eff6ff;color:#1e40af;padding:3px 10px;border-radius:20px;font-size:12px;margin:2px;display:inline-block;">${k}</span>`).join('')}</p>`:''}
+      ${s.techSkills.length?`<h3 style="margin-top:1rem;font-size:14px;color:#374151;">💻 Technical Skills</h3><p>${s.techSkills.map(k=>`<span style="background:#f1f5f9;color:#374151;padding:3px 10px;border-radius:20px;font-size:12px;margin:2px;display:inline-block;">${k}</span>`).join('')}</p>`:''}
+      ${s.workHistory.length?`<h3 style="margin-top:1.5rem;font-size:14px;">🏢 Work History</h3>${s.workHistory.map(w=>`<div style="margin-bottom:0.75rem;padding-left:1rem;border-left:3px solid #bfdbfe;"><strong>${w.company}</strong> — ${w.role}<br><span style="color:#64748b;font-size:13px;">${w.startYear}–${w.endYear}</span>${w.description?'<p style="font-size:13px;margin-top:4px;">'+w.description+'</p>':''}</div>`).join('')}`:''}
+      ${s.projects.length?`<h3 style="margin-top:1.5rem;font-size:14px;">📁 Projects</h3>${s.projects.map(p=>`<div style="margin-bottom:0.75rem;padding-left:1rem;border-left:3px solid #bbf7d0;"><strong>${p.name}</strong>${p.client?' @ '+p.client:''}${p.year?' ('+p.year+')':''}<br>${p.tech?'<span style="color:#64748b;font-size:12px;">'+p.tech+'</span>':''}</div>`).join('')}`:''}
+    </div>
+  `).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Employee Profiles</title><style>body{font-family:system-ui,sans-serif;background:#f0f4f8;padding:2rem;max-width:900px;margin:0 auto;}h1{color:#1e293b;margin-bottom:0.5rem;}p{margin:4px 0;}h3{margin-bottom:8px;}</style></head><body><h1>Employee Experience Profiles</h1><p style="color:#64748b;margin-bottom:2rem;">Generated: ${new Date().toLocaleString()} · ${subs.length} employee${subs.length>1?'s':''}</p>${cards}</body></html>`;
+}
+
+function showPreview() {
+  const area = document.getElementById('previewArea');
+  if (!submissions.length) { alert('No submissions yet.'); return; }
+  area.style.display = 'block';
+  area.innerHTML = `<h3 style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:1rem;">Preview — All ${submissions.length} Employee Profile${submissions.length>1?'s':''}</h3>` +
+    submissions.map(s => `<div style="background:white;border-radius:10px;padding:1.25rem;margin-bottom:1rem;border:1px solid #e2e8f0;">
+      <strong style="font-size:16px;">${s.name}</strong> <span style="color:#64748b;font-size:13px;">— ${s.jobTitle}</span><br>
+      <span style="color:#94a3b8;font-size:12px;">${s.email} · ${s.totalYears||'?'} yrs exp</span>
+      ${s.sfCerts.length?`<div style="margin-top:8px;">${s.sfCerts.map(c=>`<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:12px;font-size:11px;margin:2px;display:inline-block;">${c}</span>`).join('')}</div>`:''}
+      ${s.bio?`<p style="font-size:13px;color:#334155;margin-top:8px;">${s.bio.substring(0,200)}${s.bio.length>200?'...':''}</p>`:''}
+    </div>`).join('');
+  area.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function generateAISummary() {
+  if (!submissions.length) { alert('No submissions yet.'); return; }
+  const area = document.getElementById('aiSummaryArea');
+  area.style.display = 'block';
+  area.innerHTML = `<h3 style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:1rem;">AI Experience Summaries</h3>`;
+
+  for (const s of submissions) {
+    const box = document.createElement('div');
+    box.style.cssText = 'background:white;border-radius:10px;padding:1.25rem;margin-bottom:1rem;border:1px solid #e2e8f0;';
+    box.innerHTML = `<div style="font-weight:600;color:#1e293b;margin-bottom:8px;">${s.name} — ${s.jobTitle}</div><div class="ai-loading"><span class="dot-anim">⏳</span> Generating summary with Claude AI...</div>`;
+    area.appendChild(box);
+
+    const prompt = `You are an HR talent analyst. Write a concise 3-4 sentence professional summary of this employee for a management report. Focus on their key strengths, expertise level, and value to the team.
+
+Employee: ${s.name}
+Role: ${s.jobTitle}
+Department: ${s.department||'N/A'}
+Total Experience: ${s.totalYears||'N/A'} years
+Salesforce Certifications: ${s.sfCerts.join(', ')||'None listed'}
+Salesforce Skills: ${s.sfSkills.join(', ')||'N/A'}
+Technical Skills: ${s.techSkills.join(', ')||'N/A'}
+Industries: ${s.industries.join(', ')||'N/A'}
+Work History: ${s.workHistory.map(w=>w.company+' ('+w.role+')').join('; ')||'N/A'}
+Bio: ${s.bio||'N/A'}
+
+Write a professional summary paragraph only. No bullets, no headers.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await res.json();
+      const summary = data.content?.map(b => b.text || '').join('') || 'Could not generate summary.';
+      box.querySelector('.ai-loading').outerHTML = `<div class="ai-box">${summary}</div>`;
+    } catch (e) {
+      box.querySelector('.ai-loading').outerHTML = `<div style="color:#dc2626;font-size:13px;">Error generating summary. Check API access.</div>`;
+    }
+  }
+
+  const allSummaries = area.querySelectorAll('.ai-box');
+  if (allSummaries.length) {
+    const dlBtn = document.createElement('button');
+    dlBtn.className = 'btn-success';
+    dlBtn.textContent = '⬇ Download AI Summaries as .md';
+    dlBtn.onclick = () => {
+      let md = `# AI-Generated Employee Experience Summaries\n\n*Generated: ${new Date().toLocaleString()}*\n\n---\n\n`;
+      submissions.forEach((s, i) => {
+        const box = allSummaries[i];
+        if (box) md += `## ${s.name} — ${s.jobTitle}\n\n${box.textContent}\n\n---\n\n`;
+      });
+      downloadFile(md, 'ai_experience_summaries.md', 'text/markdown');
+    };
+    area.appendChild(dlBtn);
+  }
+
+  area.scrollIntoView({ behavior: 'smooth' });
+}
+
+init();
+</script>
+</body>
+</html>
